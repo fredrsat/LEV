@@ -45,8 +45,12 @@
         <div class="risk-factors-grid" id="risk-factors"></div>
         <div class="risk-summary" id="risk-summary" style="display:none"></div>
         <p class="risk-disclaimer">
-          Statistical estimates based on population-level studies — not personal medical advice.
-          Sources: GBD 2019, UK Biobank, Lancet meta-analyses.
+          Statistical estimates based on population-level epidemiological studies — not personal medical advice.
+          Risk factors are combined using an additive excess model (HR&nbsp;=&nbsp;1&nbsp;+&nbsp;Σ(HRᵢ−1)),
+          which empirically outperforms the naive multiplicative product for correlated behavioral factors
+          (Mehta et al. 2017 NHANES; Khaw et al. 2008 EPIC-Norfolk).
+          Individual relative risks from: GBD 2019, UK Biobank, Lancet meta-analyses,
+          Holt-Lunstad et al. 2015 (social isolation), GeroScience 2025 meta-analysis (sleep).
         </p>
         <button class="risk-reset" id="risk-reset">Reset to population average</button>
       </div>
@@ -74,9 +78,9 @@
         <div class="metric-sub">From current age</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Annual mortality risk now (qx)</div>
+        <div class="metric-label">Annual mortality risk now</div>
         <div class="metric-value" id="met-qx">—</div>
-        <div class="metric-sub">Per thousand alive</div>
+        <div class="metric-sub">Probability of dying this year</div>
       </div>
     </div>
 

@@ -9,6 +9,7 @@ export const HYPOTHESES = [
     weight: 0.10,
     color: '#5B8DD9',
     source: 'Ray Kurzweil (2024): LEV via AI + nanotechnology by 2029–2035. José Luis Cordeiro: explicitly "by 2030." George Church (2024 Abundance Summit): "by end of 2030." Weighted low due to historically excessive optimism from this camp.',
+    conclusion: 'Relies on near-simultaneous AI and nanotech convergence by ~2032. Historically, predictions from this camp have run 10–20 years ahead of outcomes. Included as an upper-bound scenario; weighted low at 10%.',
     refs: [
       {
         title: 'Kurzweil — AI Escape Velocity (Bessemer VP, 2024)',
@@ -40,6 +41,7 @@ export const HYPOTHESES = [
     weight: 0.25,
     color: '#1D9E75',
     source: 'Aubrey de Grey (LEVITY podcast, Feb 2025): 50% chance within 12–15 years (~2037–2040). Peter Diamandis (Apr 2025): "within 10–15 years." Both represent active biotech optimism grounded in ongoing research programs.',
+    conclusion: 'Active programs in senolytics, mTOR inhibition (rapamycin), and partial cellular reprogramming make mid-2030s LEV scientifically plausible. The PEARL trial (2025) showed no epigenetic age reduction from rapamycin — a modest setback — but Tier 3 approaches (CRISPR, Yamanaka reprogramming) remain the key near-term frontier. The strongest credible optimistic case; 25% weight.',
     refs: [
       {
         title: 'de Grey — The Big 2025 Interview (LEVITY podcast, Feb 2025)',
@@ -66,6 +68,21 @@ export const HYPOTHESES = [
         url: 'https://www.levf.org/',
         accessed: '2026-03-20',
       },
+      {
+        title: 'Horvath et al. — Universal DNA methylation age across mammalian tissues (Nature Aging, 2023)',
+        url: 'https://www.nature.com/articles/s43587-023-00462-6',
+        accessed: '2026-03-20',
+      },
+      {
+        title: 'Kaeberlein et al. — PEARL rapamycin trial: one-year safety and healthspan results (Aging, 2025)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12074816/',
+        accessed: '2026-03-20',
+      },
+      {
+        title: 'Palmer — Three tiers to biological escape velocity (Aging Medicine, 2022)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9805293/',
+        accessed: '2026-03-20',
+      },
     ],
   },
   {
@@ -76,6 +93,7 @@ export const HYPOTHESES = [
     weight: 0.38,
     color: '#378ADD',
     source: 'Metaculus community (143 forecasters, 640 predictions, Sept. 2024): median June 2053 — the strongest single aggregated signal. George Church (2024): "I wouldn\'t be surprised if 2050 would be a point." Highest weight as best-calibrated aggregate forecast.',
+    conclusion: 'The Metaculus median (2053) is the strongest single calibration anchor in this model. Mid-century LEV requires Tier 3 interventions (CRISPR, reprogramming) to reach clinical readiness and population-scale deployment — a plausible but non-trivial 30-year roadmap from today. Vaupel\'s work on mortality deceleration supports gradual LE gains consistent with reaching escape velocity by ~2055. Highest weight at 38%.',
     refs: [
       {
         title: 'Metaculus — Date Life Expectancy Hits Escape Velocity (Q6592)',
@@ -97,6 +115,16 @@ export const HYPOTHESES = [
         url: 'https://www.diamandis.com/blog/longevity-escape-velocity',
         accessed: '2026-03-20',
       },
+      {
+        title: 'Barbi, Vaupel et al. — The plateau of human mortality: demography of longevity pioneers (Science, 2018)',
+        url: 'https://www.science.org/doi/10.1126/science.aat3119',
+        accessed: '2026-03-20',
+      },
+      {
+        title: 'Horvath et al. — Universal DNA methylation age across mammalian tissues (Nature Aging, 2023)',
+        url: 'https://www.nature.com/articles/s43587-023-00462-6',
+        accessed: '2026-03-20',
+      },
     ],
   },
   {
@@ -107,6 +135,7 @@ export const HYPOTHESES = [
     weight: 0.19,
     color: '#BA7517',
     source: 'Olshansky et al. (Nature Aging, Oct. 2024): radical lifespan extension implausible this century without major breakthroughs; soft ceiling ~89 yrs (women), ~83 yrs (men). Peter Fedichev (2024): aging is thermodynamically irreversible stochastic damage; even best interventions yield at most 10–15 extra years. Fedichev won the landmark "How to Defeat Aging" debate at Foresight Institute (May 2024, 42–38 points).',
+    conclusion: 'Fedichev\'s thermodynamic framework quantifies irreversible entropy accumulation at 0.012–0.037 bits/unit/year, implying a biological maximum lifespan of ~114–130 years. Olshansky\'s empirical data shows a LE ceiling of ~89/83 years under conventional medicine, with 20% all-cause mortality reduction required per additional year gained. If these thermodynamic constraints hold, LEV — if achievable — is a late-century event requiring fundamental breakthroughs not yet demonstrated. 19% weight.',
     refs: [
       {
         title: 'Olshansky et al. — Implausibility of radical life extension (Nature Aging, Oct. 2024)',
@@ -133,6 +162,21 @@ export const HYPOTHESES = [
         url: 'https://www.science.org/content/article/long-lived-bet',
         accessed: '2026-03-20',
       },
+      {
+        title: 'Tarkhov, Denisov, Fedichev — Aging clocks, entropy, and the limits of age-reversal (bioRxiv, 2022)',
+        url: 'https://www.biorxiv.org/content/10.1101/2022.02.06.479300v2',
+        accessed: '2026-03-20',
+      },
+      {
+        title: 'Fedichev — Discovery of thermodynamic control variables that independently regulate healthspan and maximum lifespan (bioRxiv, Dec 2024)',
+        url: 'https://www.biorxiv.org/content/10.1101/2024.12.01.626230v1',
+        accessed: '2026-03-20',
+      },
+      {
+        title: 'Newman — Errors as a primary cause of late-life mortality deceleration and plateaus (PLOS Biology, 2018)',
+        url: 'https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2006776',
+        accessed: '2026-03-20',
+      },
     ],
   },
   {
@@ -143,6 +187,7 @@ export const HYPOTHESES = [
     weight: 0.08,
     color: '#888780',
     source: 'Olshansky: lifespan ceiling already visible in data — no trajectory toward LEV. Leonard Hayflick (1928–2024): aging is driven by the 2nd law of thermodynamics, not fixable biology. Peter Fedichev: stochastic entropic damage is irreversible in long-lived species. Broad position in mainstream academic gerontology.',
+    conclusion: 'Irreversible entropy accumulation (Fedichev 2022: 0.012 bits/unit/year in DNA methylation data) and the Hayflick limit together argue that biological aging cannot be fully arrested. Newman (2018) shows the apparent mortality plateau above age 105 is likely a statistical artifact — not a biological ceiling that could be exploited for LEV. No current mortality trajectory points toward escape velocity. 8% weight as a hard floor for this scenario.',
     refs: [
       {
         title: 'Hayflick — Leonard Hayflick and the limits of ageing (The Lancet, 2011)',
@@ -155,13 +200,23 @@ export const HYPOTHESES = [
         accessed: '2026-03-20',
       },
       {
-        title: 'Fedichev — Aging clocks, entropy, and the limits of age-reversal (bioRxiv, 2022)',
-        url: 'https://www.biorxiv.org/content/10.1101/2022.02.06.479300v1',
+        title: 'Tarkhov, Denisov, Fedichev — Aging clocks, entropy, and the limits of age-reversal (bioRxiv, 2022)',
+        url: 'https://www.biorxiv.org/content/10.1101/2022.02.06.479300v2',
+        accessed: '2026-03-20',
+      },
+      {
+        title: 'Fedichev — Discovery of thermodynamic control variables that independently regulate healthspan and maximum lifespan (bioRxiv, Dec 2024)',
+        url: 'https://www.biorxiv.org/content/10.1101/2024.12.01.626230v1',
         accessed: '2026-03-20',
       },
       {
         title: 'Olshansky — Human longevity may have reached its upper limit (Scientific American, 2024)',
         url: 'https://www.scientificamerican.com/article/human-longevity-may-have-reached-its-upper-limit/',
+        accessed: '2026-03-20',
+      },
+      {
+        title: 'Newman — Errors as a primary cause of late-life mortality deceleration and plateaus (PLOS Biology, 2018)',
+        url: 'https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2006776',
         accessed: '2026-03-20',
       },
     ],

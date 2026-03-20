@@ -82,7 +82,7 @@ function update() {
   // Metrics
   metE0.textContent    = e0 != null ? e0.toFixed(1) + ' yrs' : '—';
   metSurv80.textContent = currentAge < 80 ? fmt(surv80) : '—';
-  metQx.textContent    = (qxNow * 1000).toFixed(2) + '‰';
+  metQx.textContent    = (qxNow * 100).toFixed(3) + '%';
 
   // Hypothesis cards
   const contribs = hypothesisContributions(currentAge, qx);
@@ -123,20 +123,17 @@ function renderHypothesisCards(contribs, total) {
     weightEl.className = 'hyp-weight';
     weightEl.textContent = `${(share * 100).toFixed(1)}% of total P(LEV)`;
 
-    const sourceEl = document.createElement('div');
-    sourceEl.className = 'hyp-source';
-    sourceEl.textContent = h.source;
+    const conclusionEl = document.createElement('div');
+    conclusionEl.className = 'hyp-conclusion';
+    conclusionEl.style.borderLeftColor = h.color;
+    conclusionEl.textContent = h.conclusion;
 
-    card.append(nameEl, metaEl, contribEl, weightEl, sourceEl);
+    card.append(nameEl, metaEl, contribEl, weightEl, conclusionEl);
 
     if (h.refs?.length) {
       const refsEl = document.createElement('div');
       refsEl.className = 'hyp-refs';
-
-      const refsLabel = document.createElement('div');
-      refsLabel.className = 'hyp-refs-label';
-      refsLabel.textContent = 'Sources';
-      refsEl.appendChild(refsLabel);
+      refsEl.hidden = true;
 
       h.refs.forEach(ref => {
         const link = document.createElement('a');
@@ -148,14 +145,24 @@ function renderHypothesisCards(contribs, total) {
 
         const accessed = document.createElement('span');
         accessed.className = 'hyp-ref-accessed';
-        accessed.textContent = ` · accessed ${ref.accessed}`;
+        accessed.textContent = ` · ${ref.accessed}`;
 
         const row = document.createElement('div');
         row.append(link, accessed);
         refsEl.appendChild(row);
       });
 
-      card.appendChild(refsEl);
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'hyp-refs-toggle';
+      toggleBtn.textContent = `${h.refs.length} sources ▶`;
+      toggleBtn.addEventListener('click', () => {
+        refsEl.hidden = !refsEl.hidden;
+        toggleBtn.textContent = refsEl.hidden
+          ? `${h.refs.length} sources ▶`
+          : `${h.refs.length} sources ▼`;
+      });
+
+      card.append(toggleBtn, refsEl);
     }
 
     hypCards.appendChild(card);
@@ -337,7 +344,7 @@ function initQxChart() {
         },
       ],
     },
-    options: chartOptions('qx', v => (v * 1000).toFixed(2) + '‰'),
+    options: chartOptions('qx', v => (v * 100).toFixed(3) + '%'),
   });
 }
 

@@ -255,28 +255,35 @@ main {
   color: var(--muted);
 }
 
-.hyp-source {
-  font-size: 0.65rem;
-  color: var(--muted);
+.hyp-conclusion {
+  font-size: 0.71rem;
+  line-height: 1.55;
+  padding: 7px 10px;
+  background: rgba(255,255,255,0.035);
+  border-left: 2px solid;
+  border-radius: 0 4px 4px 0;
   margin-top: 10px;
-  line-height: 1.4;
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
+  color: var(--text);
 }
+
+.hyp-refs-toggle {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.65rem;
+  padding: 8px 0 0;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+.hyp-refs-toggle:hover { color: var(--text); }
 
 .hyp-refs {
-  margin-top: 10px;
-  padding-top: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid var(--border);
-}
-
-.hyp-refs-label {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  margin-bottom: 5px;
-  font-weight: 600;
 }
 
 .hyp-ref-link {

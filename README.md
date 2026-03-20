@@ -39,15 +39,15 @@ Tables are Gompertz-modelled and calibrated against HMD 2020–2022 period data 
 
 ### Five hypotheses
 
-Calibrated against primary sources as of March 2026. Each hypothesis models the LEV arrival year as a Gaussian N(μ, σ); the "Does not happen" hypothesis contributes zero to P(LEV).
+Calibrated against primary sources as of March 2026. Each hypothesis models the LEV arrival year as a Gaussian N(μ, σ); the "Does not happen" hypothesis contributes zero to P(LEV). Each card in the UI shows a sourced conclusion and a collapsible reference list.
 
 | # | Name | μ | σ | Weight | Key sources |
 |---|------|---|---|--------|-------------|
 | 1 | Singularity optimist | 2032 | 6 | 10% | Kurzweil (2024): 2029–2035 via AI+nanotech. Cordeiro: explicitly "by 2030." George Church (2024 Abundance Summit): "by end of 2030." Weighted low — historically excessive optimism. |
-| 2 | Biotech optimist | 2039 | 8 | 25% | Aubrey de Grey (LEVITY podcast, Feb 2025): 50% chance within 12–15 yrs (~2037–2040). Peter Diamandis (Apr 2025): within 10–15 yrs. |
-| 3 | Moderate / mainstream | 2055 | 12 | 38% | Metaculus Q6592 (143 forecasters, 640 predictions, Sept. 2024): median **June 2053** — strongest single aggregated signal. George Church: "wouldn't be surprised if 2050." |
-| 4 | Biological pessimist | 2100 | 25 | 19% | Olshansky et al., *Nature Aging* (Oct. 2024): radical extension implausible this century. Peter Fedichev (Foresight debate winner, May 2024): thermodynamically irreversible damage, max 10–15 extra years. |
-| 5 | Does not happen | — | — | 8% | Hayflick (1928–2024): aging is 2nd-law thermodynamics, not fixable biology. Olshansky: lifespan ceiling visible in data. Fedichev: stochastic entropic damage is irreversible in long-lived species. |
+| 2 | Biotech optimist | 2039 | 8 | 25% | Aubrey de Grey (LEVITY podcast, Feb 2025): 50% chance within 12–15 yrs (~2037–2040). Peter Diamandis (Apr 2025): within 10–15 yrs. Horvath et al. 2023 (epigenetic clock reversibility). PEARL trial 2025 (rapamycin RCT). |
+| 3 | Moderate / mainstream | 2055 | 12 | 38% | Metaculus Q6592 (143 forecasters, 640 predictions, Sept. 2024): median **June 2053** — strongest single aggregated signal. George Church: "wouldn't be surprised if 2050." Vaupel / Barbi et al. 2018 (mortality deceleration). |
+| 4 | Biological pessimist | 2100 | 25 | 19% | Olshansky et al., *Nature Aging* (Oct. 2024): radical extension implausible this century; LE ceiling ~89/83 yrs. Fedichev et al. (bioRxiv 2022 + Dec 2024): irreversible entropy accumulation 0.012 bits/unit/year; biological tmax 114–130 yrs. Newman 2018: mortality plateau likely a statistical artifact. |
+| 5 | Does not happen | — | — | 8% | Hayflick (1928–2024): aging is 2nd-law thermodynamics. Fedichev: stochastic entropic damage irreversible in long-lived species. Newman 2018: no true deceleration of aging visible in clean mortality data. |
 
 #### Primary references
 
@@ -63,6 +63,13 @@ Calibrated against primary sources as of March 2026. Each hypothesis models the 
 | Olshansky et al. — Implausibility of radical life extension (*Nature Aging*, Oct. 2024) | https://www.nature.com/articles/s43587-024-00702-3 |
 | Fedichev wins "How to Defeat Aging" debate (EurekAlert, 2024) | https://www.eurekalert.org/news-releases/1047456 |
 | Fedichev — Entropy and aging (Longevity Technology, 2024) | https://longevity.technology/news/is-entropy-the-underlying-factor-driving-aging/ |
+| Tarkhov, Denisov, Fedichev — Aging clocks, entropy, and the limits of age-reversal (bioRxiv, 2022) | https://www.biorxiv.org/content/10.1101/2022.02.06.479300v2 |
+| Fedichev — Thermodynamic control variables for healthspan and lifespan (bioRxiv, Dec 2024) | https://www.biorxiv.org/content/10.1101/2024.12.01.626230v1 |
+| Barbi, Vaupel et al. — The plateau of human mortality (Science, 2018) | https://www.science.org/doi/10.1126/science.aat3119 |
+| Newman — Errors as a primary cause of late-life mortality deceleration (PLOS Biology, 2018) | https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2006776 |
+| Horvath et al. — Universal DNA methylation age across mammalian tissues (Nature Aging, 2023) | https://www.nature.com/articles/s43587-023-00462-6 |
+| Kaeberlein et al. — PEARL rapamycin trial: one-year results (Aging, 2025) | https://pmc.ncbi.nlm.nih.gov/articles/PMC12074816/ |
+| Palmer — Three tiers to biological escape velocity (Aging Medicine, 2022) | https://pmc.ncbi.nlm.nih.gov/articles/PMC9805293/ |
 | Olshansky / Austad Lifespan Bet (Science AAAS, 2001) | https://www.science.org/content/article/long-lived-bet |
 | Hayflick — Limits of ageing (*The Lancet*, 2011) | https://www.thelancet.com/article/S0140-6736(11)60908-2/fulltext |
 | Hayflick — Obituary (*Nature Aging*, 2024) | https://www.nature.com/articles/s43587-024-00720-1 |
@@ -79,15 +86,29 @@ The baseline calculation uses population-average mortality tables. An optional p
 qx_personal[a] = qx_population[a] × multiplier
 ```
 
-The multiplier is the capped product (range 0.40–2.50) of individual relative risks drawn from large epidemiological studies:
+### Combination method — additive excess
 
-| Factor | Options | Source |
-|--------|---------|--------|
-| Smoking | Never / Former / Current | GBD 2019, UK Biobank |
-| Physical activity | Active / Light / Sedentary | Lancet 2022 meta-analysis |
-| BMI | Underweight / Normal / Overweight / Obese | Lancet 2016 (4M participants) |
-| Alcohol | None / Moderate / Heavy | GBD 2018, Lancet 2018 |
-| Chronic conditions | None / Managed / Unmanaged | GBD 2019, WHO |
+Risk factors are combined using the **additive excess model**:
+
+```
+multiplier = 1 + Σ (HRᵢ − 1)
+```
+
+Behavioral risk factors interact additively, not multiplicatively. Mehta et al. 2017 (NHANES, ~700 000 participants) showed the multiplicative product significantly overestimates observed joint mortality risk for correlated lifestyle factors (observed HR for obese smokers = 2.89; additive prediction = 2.80, p = 0.55; multiplicative prediction = 3.60, p = 0.004). Khaw et al. 2008 (EPIC-Norfolk, 20 244 participants) corroborated this: 0 of 4 healthy behaviors → observed HR 4.04, consistent with additive excess rather than the ≥6× a naive product implies.
+
+The multiplier is capped to [0.25, 3.50] to handle extreme profiles.
+
+### Risk factors
+
+| Factor | Options | Primary source |
+|--------|---------|----------------|
+| Smoking | Never / Former (>10 yrs) / Current | GBD 2019; UK Biobank; SOA 2012–2019 Mortality Experience |
+| Physical activity | Active (150+ min/wk) / Light / Sedentary | Arem et al. 2015, *Lancet* pooled analysis (661 137 participants) |
+| BMI | Underweight / Normal / Overweight / Obese | Global BMI Mortality Collaboration, *Lancet* 2016 (3.95M participants) |
+| Alcohol | None / Moderate (≤14 units/wk) / Heavy (>21 units/wk) | Wood et al. 2018, *Lancet* (599 912 participants); GBD 2018 |
+| Chronic conditions | None / Managed / Unmanaged | GBD 2019; WHO Global Health Estimates |
+| Social connection | Well-connected / Socially isolated | Holt-Lunstad et al. 2015 (70 studies, OR 1.26–1.29 for isolation) |
+| Sleep duration | Adequate (7–9h) / Short (<6h/night) | Meta-analysis, *GeroScience* 2025 (79 cohorts, HR 1.14 for short sleep) |
 
 When any factor is set the UI shows:
 - The personalized P(LEV) as the headline figure
@@ -97,7 +118,20 @@ When any factor is set the UI shows:
 
 All factors default to "Not specified" (multiplier = 1.0 = population average). Unspecified factors do not affect the result.
 
-> **Note:** Individual risk factors from observational studies are not fully independent — correlated behaviours mean a simple product overestimates joint effects. The 0.40–2.50 cap mitigates extreme values. This is a calculator, not a medical tool.
+> **Note:** This is a calculator, not a medical tool. Individual risk estimates from observational studies carry substantial uncertainty and are not a substitute for clinical assessment.
+
+#### Personal risk adjustment references
+
+| Source | Link |
+|--------|------|
+| Mehta et al. — Additive vs. multiplicative risk factor interaction (NHANES, 2017) | https://pmc.ncbi.nlm.nih.gov/articles/PMC5599176/ |
+| Khaw et al. — 4 health behaviors and mortality, EPIC-Norfolk (PLOS Medicine, 2008) | https://pmc.ncbi.nlm.nih.gov/articles/PMC2174962/ |
+| GBD 2019 Comparative Risk Assessment (*Lancet*, 2020) | https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(20)30752-2/fulltext |
+| Global BMI Mortality Collaboration (*Lancet*, 2016) | https://pmc.ncbi.nlm.nih.gov/articles/PMC4995441/ |
+| Arem et al. — Leisure-time physical activity and mortality (*Lancet*, 2015) | https://pmc.ncbi.nlm.nih.gov/articles/PMC4451435/ |
+| Wood et al. — Alcohol and all-cause mortality (*Lancet*, 2018) | https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30134-X/fulltext |
+| Holt-Lunstad et al. — Social isolation and mortality (2015) | https://pubmed.ncbi.nlm.nih.gov/25910392/ |
+| Sleep duration and all-cause mortality meta-analysis (*GeroScience*, 2025) | https://pmc.ncbi.nlm.nih.gov/articles/PMC12181477/ |
 
 ## Countries
 
@@ -108,8 +142,8 @@ Norway, Sweden, Denmark, Finland, Germany, France, United Kingdom, United States
 ## Getting started
 
 ```bash
-git clone https://github.com/your-username/lev-calculator.git
-cd lev-calculator
+git clone https://github.com/fredrsat/LEV.git
+cd LEV
 npm install
 npm run dev
 ```
@@ -133,6 +167,7 @@ lev-calculator/
 ├── src/
 │   ├── lev.js              # Pure calculation module (no DOM)
 │   ├── mortality.js        # Mortality data loader and helpers
+│   ├── risk.js             # Personal risk factors and multiplier model
 │   ├── main.js             # UI logic, Chart.js, event listeners
 │   └── style.css
 ├── public/
@@ -168,6 +203,7 @@ This overwrites `public/data/mortality_data.json` with the latest period life ta
 - **Static mortality assumption.** The model applies today's qx rates until LEV is reached. It does not model gradual improvements in medicine before LEV.
 - **Both-sexes average.** Men and women have different mortality profiles (~4–5 year gap in life expectancy). A future update will add a sex toggle.
 - **Calibrated hypotheses.** The five hypotheses and their weights are a best-effort summary of expert opinion as of early 2026. They are not a scientific consensus.
+- **Additive excess model.** Combining independent relative risks from different studies is an approximation. Residual confounding and study heterogeneity mean individual estimates carry substantial uncertainty.
 - **This is not medical or financial advice.**
 
 ---
