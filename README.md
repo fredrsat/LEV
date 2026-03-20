@@ -49,6 +49,34 @@ Tables are Gompertz-modelled and calibrated against HMD 2020–2022 period data 
 
 ---
 
+## Personal risk adjustment
+
+The baseline calculation uses population-average mortality tables. An optional panel lets you adjust for personal health factors, shifting the qx values by a composite multiplier:
+
+```
+qx_personal[a] = qx_population[a] × multiplier
+```
+
+The multiplier is the capped product (range 0.40–2.50) of individual relative risks drawn from large epidemiological studies:
+
+| Factor | Options | Source |
+|--------|---------|--------|
+| Smoking | Never / Former / Current | GBD 2019, UK Biobank |
+| Physical activity | Active / Light / Sedentary | Lancet 2022 meta-analysis |
+| BMI | Underweight / Normal / Overweight / Obese | Lancet 2016 (4M participants) |
+| Alcohol | None / Moderate / Heavy | GBD 2018, Lancet 2018 |
+| Chronic conditions | None / Managed / Unmanaged | GBD 2019, WHO |
+
+When any factor is set the UI shows:
+- The personalized P(LEV) as the headline figure
+- The population-average P(LEV) and the percentage-point delta below it
+- A second reference curve on the P(LEV) chart
+- A risk modifier bar visualising the composite multiplier
+
+All factors default to "Not specified" (multiplier = 1.0 = population average). Unspecified factors do not affect the result.
+
+> **Note:** Individual risk factors from observational studies are not fully independent — correlated behaviours mean a simple product overestimates joint effects. The 0.40–2.50 cap mitigates extreme values. This is a calculator, not a medical tool.
+
 ## Countries
 
 Norway, Sweden, Denmark, Finland, Germany, France, United Kingdom, United States, Japan, Netherlands, Italy, Spain, Australia, Canada.

@@ -34,12 +34,32 @@
     </div>
   </div>
 
+  <div id="risk-panel" class="risk-panel">
+    <button class="risk-toggle" id="risk-toggle" aria-expanded="false">
+      <span class="risk-arrow">▶</span>
+      <span>Personalize your estimate</span>
+      <span class="risk-status" id="risk-status">population average</span>
+    </button>
+    <div class="risk-body" id="risk-body">
+      <div class="risk-body-inner">
+        <div class="risk-factors-grid" id="risk-factors"></div>
+        <div class="risk-summary" id="risk-summary" style="display:none"></div>
+        <p class="risk-disclaimer">
+          Statistical estimates based on population-level studies — not personal medical advice.
+          Sources: GBD 2019, UK Biobank, Lancet meta-analyses.
+        </p>
+        <button class="risk-reset" id="risk-reset">Reset to population average</button>
+      </div>
+    </div>
+  </div>
+
   <main>
 
     <div class="hero">
       <div class="prob-label">P(LEV)</div>
       <div class="prob-value high" id="prob-value">—</div>
       <div class="prob-sub" id="prob-sub"></div>
+      <div class="prob-ref" id="prob-ref" style="display:none"></div>
     </div>
 
     <div class="metrics">
