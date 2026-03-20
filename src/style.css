@@ -264,6 +264,35 @@ main {
   padding-top: 8px;
 }
 
+.hyp-refs {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.hyp-refs-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.hyp-ref-link {
+  font-size: 0.62rem;
+  color: var(--blue);
+  text-decoration: none;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.hyp-ref-link:hover { text-decoration: underline; }
+
+.hyp-ref-accessed {
+  font-size: 0.58rem;
+  color: var(--muted);
+}
+
 /* ── Footer ── */
 footer {
   max-width: 1100px;

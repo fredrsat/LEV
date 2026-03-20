@@ -39,13 +39,35 @@ Tables are Gompertz-modelled and calibrated against HMD 2020–2022 period data 
 
 ### Five hypotheses
 
-| # | Name | μ | σ | Weight | Source basis |
-|---|------|---|---|--------|--------------|
-| 1 | Singularity optimist | 2032 | 4 | 10% | Ray Kurzweil (2024), José Luis Cordeiro — weighted low due to historically excessive optimism |
-| 2 | Biotech optimist | 2042 | 7 | 25% | Aubrey de Grey / LEV Foundation (2025), George Church (Harvard, 2024), David Sinclair |
-| 3 | Moderate / mainstream | 2065 | 12 | 40% | Metaculus community median (640 forecasters, Sept. 2024) — highest weight |
-| 4 | Biological pessimist | 2100 | 20 | 20% | Olshansky et al., *Nature Aging* (Oct. 2024); Olshansky/Austad Lifespan Bet (2000/2016) |
-| 5 | Does not happen | — | — | 5% | Evolutionary and thermodynamic barriers |
+Calibrated against primary sources as of March 2026. Each hypothesis models the LEV arrival year as a Gaussian N(μ, σ); the "Does not happen" hypothesis contributes zero to P(LEV).
+
+| # | Name | μ | σ | Weight | Key sources |
+|---|------|---|---|--------|-------------|
+| 1 | Singularity optimist | 2032 | 6 | 10% | Kurzweil (2024): 2029–2035 via AI+nanotech. Cordeiro: explicitly "by 2030." George Church (2024 Abundance Summit): "by end of 2030." Weighted low — historically excessive optimism. |
+| 2 | Biotech optimist | 2039 | 8 | 25% | Aubrey de Grey (LEVITY podcast, Feb 2025): 50% chance within 12–15 yrs (~2037–2040). Peter Diamandis (Apr 2025): within 10–15 yrs. |
+| 3 | Moderate / mainstream | 2055 | 12 | 38% | Metaculus Q6592 (143 forecasters, 640 predictions, Sept. 2024): median **June 2053** — strongest single aggregated signal. George Church: "wouldn't be surprised if 2050." |
+| 4 | Biological pessimist | 2100 | 25 | 19% | Olshansky et al., *Nature Aging* (Oct. 2024): radical extension implausible this century. Peter Fedichev (Foresight debate winner, May 2024): thermodynamically irreversible damage, max 10–15 extra years. |
+| 5 | Does not happen | — | — | 8% | Hayflick (1928–2024): aging is 2nd-law thermodynamics, not fixable biology. Olshansky: lifespan ceiling visible in data. Fedichev: stochastic entropic damage is irreversible in long-lived species. |
+
+#### Primary references
+
+| Source | Link |
+|--------|------|
+| Kurzweil — AI Escape Velocity (BVP, 2024) | https://www.bvp.com/atlas/ai-escape-velocity-a-conversation-with-ray-kurzweil |
+| Cordeiro — Biologically immortal from 2030 (CoinTelegraph, 2023) | https://cointelegraph.com/magazine/longevity-escape-velocity-jose-luis-cordeiro-biological-immortality-2030/ |
+| George Church — Aging by 2030? (Culminant Health, 2024) | http://culminanthealth.com/can-george-church-reverse-aging-by-2030/ |
+| de Grey — Big 2025 Interview (LEVITY podcast, Feb 2025) | https://reachlevity.com/p/aubrey-de-grey-the-big-2025-interview |
+| de Grey — LEV by 2035 (Longevity Technology, 2023) | https://longevity.technology/news/longevity-escape-velocity-by-2035-and-it-will-be-free/ |
+| Diamandis — Survive the next 10 years (TechCrunch, Apr 2025) | https://techcrunch.com/2025/04/06/want-to-stay-young-peter-diamandis-says-survive-the-next-10-years/ |
+| Metaculus Q6592 — Date LEV is reached | https://www.metaculus.com/questions/6592/when-will-a-country-reach-escape-velocity/ |
+| Olshansky et al. — Implausibility of radical life extension (*Nature Aging*, Oct. 2024) | https://www.nature.com/articles/s43587-024-00702-3 |
+| Fedichev wins "How to Defeat Aging" debate (EurekAlert, 2024) | https://www.eurekalert.org/news-releases/1047456 |
+| Fedichev — Entropy and aging (Longevity Technology, 2024) | https://longevity.technology/news/is-entropy-the-underlying-factor-driving-aging/ |
+| Olshansky / Austad Lifespan Bet (Science AAAS, 2001) | https://www.science.org/content/article/long-lived-bet |
+| Hayflick — Limits of ageing (*The Lancet*, 2011) | https://www.thelancet.com/article/S0140-6736(11)60908-2/fulltext |
+| Hayflick — Obituary (*Nature Aging*, 2024) | https://www.nature.com/articles/s43587-024-00720-1 |
+
+*All links retrieved March 2026.*
 
 ---
 

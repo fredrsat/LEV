@@ -101,16 +101,63 @@ function renderHypothesisCards(contribs, total) {
   contribs.forEach(h => {
     const share = total > 0 ? h.contribution / total : 0;
     const muStr = h.mu != null ? `μ=${h.mu}, σ=${h.sigma}` : 'Contributes 0';
+
     const card = document.createElement('div');
     card.className = 'hyp-card';
     card.style.borderTopColor = h.color;
-    card.innerHTML = `
-      <div class="hyp-name">${h.name}</div>
-      <div class="hyp-meta">${muStr} · weight ${(h.weight * 100).toFixed(0)}%</div>
-      <div class="hyp-contrib" style="color:${h.color}">${fmt(h.contribution, 2)}</div>
-      <div class="hyp-weight">${(share * 100).toFixed(1)}% of total P(LEV)</div>
-      <div class="hyp-source">${h.source}</div>
-    `;
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'hyp-name';
+    nameEl.textContent = h.name;
+
+    const metaEl = document.createElement('div');
+    metaEl.className = 'hyp-meta';
+    metaEl.textContent = `${muStr} · weight ${(h.weight * 100).toFixed(0)}%`;
+
+    const contribEl = document.createElement('div');
+    contribEl.className = 'hyp-contrib';
+    contribEl.style.color = h.color;
+    contribEl.textContent = fmt(h.contribution, 2);
+
+    const weightEl = document.createElement('div');
+    weightEl.className = 'hyp-weight';
+    weightEl.textContent = `${(share * 100).toFixed(1)}% of total P(LEV)`;
+
+    const sourceEl = document.createElement('div');
+    sourceEl.className = 'hyp-source';
+    sourceEl.textContent = h.source;
+
+    card.append(nameEl, metaEl, contribEl, weightEl, sourceEl);
+
+    if (h.refs?.length) {
+      const refsEl = document.createElement('div');
+      refsEl.className = 'hyp-refs';
+
+      const refsLabel = document.createElement('div');
+      refsLabel.className = 'hyp-refs-label';
+      refsLabel.textContent = 'Sources';
+      refsEl.appendChild(refsLabel);
+
+      h.refs.forEach(ref => {
+        const link = document.createElement('a');
+        link.className = 'hyp-ref-link';
+        link.href = ref.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = ref.title;
+
+        const accessed = document.createElement('span');
+        accessed.className = 'hyp-ref-accessed';
+        accessed.textContent = ` · accessed ${ref.accessed}`;
+
+        const row = document.createElement('div');
+        row.append(link, accessed);
+        refsEl.appendChild(row);
+      });
+
+      card.appendChild(refsEl);
+    }
+
     hypCards.appendChild(card);
   });
 }
