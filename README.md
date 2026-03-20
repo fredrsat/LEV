@@ -4,8 +4,6 @@ A single-page web app that estimates your personal probability of reaching **Lon
 
 Drag the age slider and select a country to see your probability update in real time, along with mortality metrics and a breakdown across five expert-weighted hypotheses.
 
-**[Live demo →]()**
-
 ---
 
 ## What is LEV?
