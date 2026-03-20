@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LEV Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+
+<div id="loading">Loading mortality data…</div>
+
+<div id="app">
+
+  <header>
+    <h1>LEV Calculator</h1>
+    <p>Probability of reaching Longevity Escape Velocity — based on age, country, and five expert-weighted hypotheses</p>
+  </header>
+
+  <div class="controls">
+    <div class="control-group">
+      <label for="country-select">Country</label>
+      <select id="country-select"></select>
+    </div>
+    <div class="control-group">
+      <label for="age-slider">Your age</label>
+      <div class="slider-row">
+        <input type="range" id="age-slider" min="1" max="90" value="35" />
+        <span class="age-display" id="age-display">35</span>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <div class="hero">
+      <div class="prob-label">P(LEV)</div>
+      <div class="prob-value high" id="prob-value">—</div>
+      <div class="prob-sub" id="prob-sub"></div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Life expectancy (e₀)</div>
+        <div class="metric-value" id="met-e0">—</div>
+        <div class="metric-sub">Gompertz-modelled, HMD 2020–2022</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Survival to age 80</div>
+        <div class="metric-value" id="met-surv80">—</div>
+        <div class="metric-sub">From current age</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Annual mortality risk now (qx)</div>
+        <div class="metric-value" id="met-qx">—</div>
+        <div class="metric-sub">Per thousand alive</div>
+      </div>
+    </div>
+
+    <div class="charts">
+      <div class="chart-card">
+        <h2>P(LEV) by age — selected country</h2>
+        <canvas id="lev-chart" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h2>Mortality risk (qx) by age — selected country</h2>
+        <canvas id="qx-chart" height="220"></canvas>
+      </div>
+    </div>
+
+    <div id="hyp-cards" class="hypotheses"></div>
+
+  </main>
+
+  <footer>
+    <p>
+      <strong>Data sources:</strong> Mortality tables Gompertz-modelled and calibrated against
+      Human Mortality Database (HMD) 2020–2022 period data for 14 countries. Both sexes combined.
+      LEV hypotheses calibrated against Metaculus community forecasts (Sept. 2024), Aubrey de Grey /
+      LEV Foundation (2025), Ray Kurzweil (2024), and Olshansky et al., <em>Nature Aging</em> (Oct. 2024).
+      The model assumes current mortality rates remain constant until LEV is reached.
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>

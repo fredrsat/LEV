@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.*
+*.env
+!.env.example
+
+# macOS
+.DS_Store
+
+# Vite
+*.local
+
+# Editor
+.vscode/
+.idea/
+
+# Duplicate / development artefacts (root-level copy, canonical is in public/data/)
+/mortality_data.json
+CONTEXT.md
