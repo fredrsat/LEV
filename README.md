@@ -2,7 +2,7 @@
 
 A single-page web app that estimates your personal probability of reaching **Longevity Escape Velocity (LEV)** — the hypothetical point at which medical technology extends life faster than time passes.
 
-Drag the age slider and select a country to see your probability update in real time, along with mortality metrics and a breakdown across five expert-weighted hypotheses.
+Select country, age, and biological sex to see your probability update in real time, along with mortality metrics, a LEV window estimate, and a breakdown across five expert-weighted hypotheses.
 
 ---
 
@@ -132,6 +132,34 @@ All factors default to "Not specified" (multiplier = 1.0 = population average). 
 | Wood et al. — Alcohol and all-cause mortality (*Lancet*, 2018) | https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30134-X/fulltext |
 | Holt-Lunstad et al. — Social isolation and mortality (2015) | https://pubmed.ncbi.nlm.nih.gov/25910392/ |
 | Sleep duration and all-cause mortality meta-analysis (*GeroScience*, 2025) | https://pmc.ncbi.nlm.nih.gov/articles/PMC12181477/ |
+
+### Mortality improvement option
+
+An optional toggle applies historical mortality improvement rates to the survival calculation:
+
+```
+q_effective(a, year) = qx[a] × (1 − r)^(year − currentYear)
+```
+
+Where `r = 0.01` (1% annual reduction). Best-practice life expectancy has risen ~2.5 years per decade since 1840 (Vaupel), corresponding to roughly 1–2% annual qx reduction in high-income countries. Enabling this option raises P(LEV) modestly, particularly for older ages where the survival window to mainstream LEV is tight.
+
+### Biological sex
+
+A sex toggle applies an approximate mortality multiplier to the combined-sex qx tables:
+- Female: ×0.74
+- Male: ×1.26
+
+These are calibrated to reproduce the observed ~4–5 year life expectancy gap across the 14 HMD countries. Sex-specific tables from HMD are planned as a future data update.
+
+### Uncertainty bounds
+
+The hero displays a sensitivity range computed by re-weighting the five hypotheses:
+- Optimistic: H1+H2 weights ×1.5, H4+H5 weights ×0.5 (renormalised)
+- Pessimistic: H1+H2 weights ×0.5, H4+H5 weights ×1.5 (renormalised)
+
+### LEV window
+
+The "Your LEV window" metric shows the interquartile range (p25–p75) of the conditional distribution P(LEV arrives at year t) × P(alive at year t). Interpretation: given that you benefit from LEV, this is the likely range of years when it would arrive.
 
 ## Countries
 

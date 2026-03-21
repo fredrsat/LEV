@@ -38,3 +38,34 @@ export function survivalToAge(currentAge, targetAge, qx) {
 export function qxArray(qx) {
   return Array.from({ length: 106 }, (_, a) => qx[String(a)] ?? 0);
 }
+
+// Sex-specific qx multipliers — approximate calibration for HMD 14-country average.
+// Males have ~26% higher mortality than the both-sexes combined table;
+// females ~26% lower. This yields the observed ~4–5 year LE gap.
+// Will be replaced by actual HMD sex-specific tables in a future data update.
+export const SEX_MULTIPLIERS = {
+  combined: 1.00,
+  female:   0.74,
+  male:     1.26,
+};
+
+export function applySexMultiplier(qx, sex = 'combined') {
+  const m = SEX_MULTIPLIERS[sex] ?? 1.0;
+  if (m === 1.0) return qx;
+  const out = {};
+  for (const [age, q] of Object.entries(qx)) {
+    out[age] = Math.min(0.999, q * m);
+  }
+  return out;
+}
+
+// Life expectancy at birth computed from a qx table (standard actuarial formula).
+export function e0FromQx(qx) {
+  let e0 = 0;
+  let s  = 1;
+  for (let a = 0; a <= 105; a++) {
+    e0 += s;
+    s  *= 1 - (qx[String(a)] ?? 0.99);
+  }
+  return e0;
+}

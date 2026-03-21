@@ -76,6 +76,46 @@ header p {
   min-width: 160px;
 }
 
+/* ── Segmented sex control ── */
+.seg-control {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2px;
+  gap: 2px;
+}
+
+.seg-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--muted);
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.seg-btn:hover { color: var(--text); }
+.seg-btn.active { background: var(--blue); color: #fff; }
+
+/* ── Mortality trend toggle ── */
+.trend-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 6px 0;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.trend-label input { cursor: pointer; accent-color: var(--blue); width: 14px; height: 14px; }
+
 .slider-row {
   display: flex;
   align-items: center;
@@ -154,10 +194,27 @@ main {
   margin-top: 10px;
 }
 
+.prob-context {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 10px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+}
+
+.prob-bounds {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.prob-bounds-range { color: var(--text); font-weight: 600; }
+
 /* ── Metric cards ── */
 .metrics {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
@@ -180,6 +237,11 @@ main {
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+.metric-card .metric-value--small {
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
 }
 
 .metric-card .metric-sub {
@@ -493,8 +555,12 @@ footer {
   .charts     { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 700px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 600px) {
-  .metrics    { grid-template-columns: 1fr; }
+  .metrics    { grid-template-columns: repeat(2, 1fr); }
   .hypotheses { grid-template-columns: repeat(2, 1fr); }
   .prob-value { font-size: 3.5rem; }
   input[type=range] { width: 160px; }

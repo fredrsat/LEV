@@ -223,7 +223,7 @@ export const HYPOTHESES = [
   },
 ];
 
-const CURRENT_YEAR = 2026;
+export const CURRENT_YEAR = new Date().getFullYear();
 const T_MIN = CURRENT_YEAR;
 const T_MAX = 2250;
 
@@ -232,12 +232,13 @@ function normalPDF(x, mu, sigma) {
 }
 
 // Survival probability from currentAge through yearsAhead annual steps.
+// annualImprovement: fractional annual reduction in qx (e.g. 0.01 = 1%/yr).
 // qx keys are strings in the JSON.
-export function survivalProb(currentAge, yearsAhead, qx) {
+export function survivalProb(currentAge, yearsAhead, qx, annualImprovement = 0) {
   let s = 1;
   for (let i = 0; i < yearsAhead; i++) {
     const a = Math.min(currentAge + i, 105);
-    const q = qx[String(a)] ?? 0.9;
+    const q = (qx[String(a)] ?? 0.9) * Math.pow(1 - annualImprovement, i);
     s *= 1 - q;
     if (s < 1e-12) return 0;
   }
@@ -245,7 +246,7 @@ export function survivalProb(currentAge, yearsAhead, qx) {
 }
 
 // P(LEV | currentAge, qx)
-export function pLEV(currentAge, qx) {
+export function pLEV(currentAge, qx, annualImprovement = 0) {
   let total = 0;
   for (const h of HYPOTHESES) {
     if (h.mu === null) continue;
@@ -254,7 +255,7 @@ export function pLEV(currentAge, qx) {
       const yearsAhead = t - CURRENT_YEAR;
       const pLEVatT = normalPDF(t, h.mu, h.sigma);
       if (pLEVatT < 1e-10) continue;
-      const s = survivalProb(currentAge, yearsAhead, qx);
+      const s = survivalProb(currentAge, yearsAhead, qx, annualImprovement);
       hContrib += pLEVatT * s;
     }
     total += h.weight * hContrib;
@@ -263,12 +264,12 @@ export function pLEV(currentAge, qx) {
 }
 
 // P(LEV) for ages 1–90
-export function pLEVCurve(qx) {
-  return Array.from({ length: 90 }, (_, i) => pLEV(i + 1, qx));
+export function pLEVCurve(qx, annualImprovement = 0) {
+  return Array.from({ length: 90 }, (_, i) => pLEV(i + 1, qx, annualImprovement));
 }
 
 // Per-hypothesis contributions for a specific age
-export function hypothesisContributions(currentAge, qx) {
+export function hypothesisContributions(currentAge, qx, annualImprovement = 0) {
   return HYPOTHESES.map(h => {
     if (h.mu === null) return { ...h, contribution: 0 };
     let contrib = 0;
@@ -276,9 +277,68 @@ export function hypothesisContributions(currentAge, qx) {
       const yearsAhead = t - CURRENT_YEAR;
       const pLEVatT = normalPDF(t, h.mu, h.sigma);
       if (pLEVatT < 1e-10) continue;
-      const s = survivalProb(currentAge, yearsAhead, qx);
+      const s = survivalProb(currentAge, yearsAhead, qx, annualImprovement);
       contrib += pLEVatT * s;
     }
     return { ...h, contribution: h.weight * contrib };
   });
+}
+
+// Uncertainty bounds: P(LEV) under optimistic and pessimistic hypothesis weighting.
+// Optimistic: H1+H2 weights ×1.5, H4+H5 weights ×0.5 (renormalised).
+// Pessimistic: H1+H2 weights ×0.5, H4+H5 weights ×1.5 (renormalised).
+export function pLEVBounds(currentAge, qx, annualImprovement = 0) {
+  function pLEVWeighted(modifiers) {
+    const hyps = HYPOTHESES.map(h => ({ ...h, weight: h.weight * (modifiers[h.id] ?? 1) }));
+    const norm = hyps.reduce((s, h) => s + h.weight, 0);
+    let total = 0;
+    for (const h of hyps) {
+      if (h.mu === null) continue;
+      let contrib = 0;
+      for (let t = T_MIN; t <= T_MAX; t++) {
+        const pLEVatT = normalPDF(t, h.mu, h.sigma);
+        if (pLEVatT < 1e-10) continue;
+        contrib += pLEVatT * survivalProb(currentAge, t - CURRENT_YEAR, qx, annualImprovement);
+      }
+      total += (h.weight / norm) * contrib;
+    }
+    return Math.min(total, 1);
+  }
+  return {
+    low:  pLEVWeighted({ 1: 0.5, 2: 0.5, 4: 1.5, 5: 1.5 }),
+    high: pLEVWeighted({ 1: 1.5, 2: 1.5, 4: 0.5, 5: 0.5 }),
+  };
+}
+
+// LEV window: conditional distribution of "year you first benefit from LEV".
+// Returns the p25 and p75 year percentiles of P(LEV at t) × P(alive at t).
+// Interpretation: "Given you benefit, this is the likely arrival window."
+export function levWindow(currentAge, qx, annualImprovement = 0) {
+  const densities = [];
+  let totalDensity = 0;
+
+  for (let t = T_MIN; t <= T_MAX; t++) {
+    let pLEVatT = 0;
+    for (const h of HYPOTHESES) {
+      if (h.mu === null) continue;
+      pLEVatT += h.weight * normalPDF(t, h.mu, h.sigma);
+    }
+    const s = survivalProb(currentAge, t - CURRENT_YEAR, qx, annualImprovement);
+    const d = pLEVatT * s;
+    densities.push(d);
+    totalDensity += d;
+  }
+
+  if (totalDensity < 1e-10) return null;
+
+  let running = 0;
+  let p25 = null, p75 = null;
+  for (let i = 0; i < densities.length; i++) {
+    running += densities[i];
+    const t = T_MIN + i;
+    if (p25 === null && running >= totalDensity * 0.25) p25 = t;
+    if (p75 === null && running >= totalDensity * 0.75) p75 = t;
+  }
+
+  return { p25, p75 };
 }

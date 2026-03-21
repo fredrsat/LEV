@@ -1,7 +1,7 @@
 import './style.css';
 import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler } from 'chart.js';
-import { loadMortalityData, getQx, getE0, getCountries, survivalToAge, qxArray } from './mortality.js';
-import { pLEV, pLEVCurve, hypothesisContributions } from './lev.js';
+import { loadMortalityData, getQx, getE0, getCountries, survivalToAge, qxArray, applySexMultiplier, e0FromQx } from './mortality.js';
+import { pLEV, pLEVCurve, hypothesisContributions, pLEVBounds, levWindow, survivalProb, CURRENT_YEAR } from './lev.js';
 import { RISK_FACTORS, computeMultiplier, applyRiskMultiplier, isPersonalized } from './risk.js';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler);
@@ -10,9 +10,11 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryS
 let mortalityData  = null;
 let currentAge     = 35;
 let currentCountry = 'NOR';
+let currentSex     = 'combined';
+let trendEnabled   = false;
 let levChart       = null;
 let qxChart        = null;
-let riskSelections = {};  // { factorId: optionValue }
+let riskSelections = {};
 
 // ── DOM refs ──
 const loadingEl     = document.getElementById('loading');
@@ -23,9 +25,12 @@ const countrySelect = document.getElementById('country-select');
 const probValue     = document.getElementById('prob-value');
 const probSub       = document.getElementById('prob-sub');
 const probRef       = document.getElementById('prob-ref');
+const probContext   = document.getElementById('prob-context');
+const probBounds    = document.getElementById('prob-bounds');
 const metE0         = document.getElementById('met-e0');
 const metSurv80     = document.getElementById('met-surv80');
 const metQx         = document.getElementById('met-qx');
+const metLevWindow  = document.getElementById('met-lev-window');
 const hypCards      = document.getElementById('hyp-cards');
 const riskToggle    = document.getElementById('risk-toggle');
 const riskBody      = document.getElementById('risk-body');
@@ -45,51 +50,86 @@ function probColor(p) {
   return 'low';
 }
 
+function annualImp() {
+  return trendEnabled ? 0.01 : 0;
+}
+
 // ── Update UI ──
 function update() {
-  const baseQx   = getQx(mortalityData, currentCountry);
-  const e0       = getE0(mortalityData, currentCountry);
+  const baseQx     = getQx(mortalityData, currentCountry);
+  const sexQx      = applySexMultiplier(baseQx, currentSex);
   const multiplier = computeMultiplier(riskSelections);
-  const personalized = isPersonalized(riskSelections);
-  const qx       = personalized ? applyRiskMultiplier(baseQx, multiplier) : baseQx;
+  const personalized  = isPersonalized(riskSelections);
+  const qx         = personalized ? applyRiskMultiplier(sexQx, multiplier) : sexQx;
+  const imp        = annualImp();
+  const anyAdjusted = currentSex !== 'combined' || personalized;
 
-  const p    = pLEV(currentAge, qx);
-  const popP = personalized ? pLEV(currentAge, baseQx) : null;
+  const p    = pLEV(currentAge, qx, imp);
+  const refP = anyAdjusted ? pLEV(currentAge, baseQx, imp) : null;
 
-  const surv80 = survivalToAge(currentAge, 80, qx);
+  const surv80 = currentAge < 80 ? survivalToAge(currentAge, 80, qx) : null;
   const qxNow  = qx[String(currentAge)] ?? 0;
 
-  // Hero
+  // Hero probability
   probValue.textContent = fmt(p, 1);
   probValue.className   = 'prob-value ' + probColor(p);
 
+  // Sub-label
+  const sexLabel = currentSex === 'female' ? 'Female · '
+                 : currentSex === 'male'   ? 'Male · '
+                 : '';
   if (personalized) {
     probSub.innerHTML = `
-      Personalized estimate · Age ${currentAge}, ${mortalityData[currentCountry].name}
+      ${sexLabel}Personalized estimate · Age ${currentAge}, ${mortalityData[currentCountry].name}
       <span class="personalized-badge">Personalized</span>
     `;
-    const delta   = p - popP;
-    const sign    = delta >= 0 ? '+' : '';
-    const cls     = delta >= 0 ? 'prob-delta-pos' : 'prob-delta-neg';
-    probRef.style.display = '';
-    probRef.innerHTML = `Population avg: ${fmt(popP, 1)} &nbsp;
-      <span class="${cls}">${sign}${fmt(delta, 1)}</span>`;
   } else {
-    probSub.textContent   = `Probability of reaching Longevity Escape Velocity — age ${currentAge}, ${mortalityData[currentCountry].name}`;
+    probSub.textContent = `${sexLabel}Probability of reaching LEV — age ${currentAge}, ${mortalityData[currentCountry].name}`;
+  }
+
+  // Reference line vs. population average (both sexes, no risk adjustments)
+  if (anyAdjusted) {
+    const delta = p - refP;
+    const sign  = delta >= 0 ? '+' : '';
+    const cls   = delta >= 0 ? 'prob-delta-pos' : 'prob-delta-neg';
+    probRef.style.display = '';
+    probRef.innerHTML = `vs. population avg (both sexes): ${fmt(refP, 1)} &nbsp;<span class="${cls}">${sign}${fmt(delta, 1)}</span>`;
+  } else {
     probRef.style.display = 'none';
   }
 
+  // Context text
+  const yearsToMainstream = Math.max(0, 2055 - CURRENT_YEAR);
+  const survToMainstream  = survivalProb(currentAge, yearsToMainstream, qx, imp);
+  const mainPct = Math.round(survToMainstream * 100);
+  let interp;
+  if      (p >= 0.70) interp = 'Strong odds of benefiting from LEV.';
+  else if (p >= 0.50) interp = 'More likely than not to benefit.';
+  else if (p >= 0.33) interp = 'Roughly 1 in 3 chance of benefiting.';
+  else if (p >= 0.15) interp = 'A realistic but uncertain prospect.';
+  else if (p >= 0.05) interp = 'A small but non-negligible chance.';
+  else                interp = 'Very unlikely given current models.';
+  probContext.textContent = `${interp} If LEV arrives around the mainstream estimate (2055), your probability of being alive then: ${mainPct}%.`;
+
+  // Uncertainty bounds
+  const bounds = pLEVBounds(currentAge, qx, imp);
+  probBounds.innerHTML = `Model sensitivity: <span class="prob-bounds-range">${fmt(bounds.low, 0)} – ${fmt(bounds.high, 0)}</span>`;
+
   // Metrics
-  metE0.textContent    = e0 != null ? e0.toFixed(1) + ' yrs' : '—';
-  metSurv80.textContent = currentAge < 80 ? fmt(surv80) : '—';
-  metQx.textContent    = (qxNow * 100).toFixed(3) + '%';
+  metE0.textContent     = e0FromQx(sexQx).toFixed(1) + ' yrs';
+  metSurv80.textContent = surv80 != null ? fmt(surv80) : '—';
+  metQx.textContent     = (qxNow * 100).toFixed(3) + '%';
+
+  // LEV window
+  const win = levWindow(currentAge, qx, imp);
+  metLevWindow.textContent = win ? `${win.p25}–${win.p75}` : '—';
 
   // Hypothesis cards
-  const contribs = hypothesisContributions(currentAge, qx);
+  const contribs = hypothesisContributions(currentAge, qx, imp);
   renderHypothesisCards(contribs, p);
 
   // Charts
-  updateLevChart(baseQx, personalized ? qx : null);
+  updateLevChart(baseQx, anyAdjusted ? qx : null, imp);
   updateQxChart(qx);
 
   // Risk panel summary
@@ -194,7 +234,6 @@ function renderRiskPanel() {
       input.addEventListener('change', () => {
         riskSelections[factor.id] = opt.value;
         update();
-        updateRiskPanelChecked();
       });
 
       wrapper.appendChild(input);
@@ -224,15 +263,14 @@ function updateRiskSummary(multiplier, personalized) {
     return;
   }
 
-  const pct  = ((multiplier - 1) * 100).toFixed(0);
+  const pct  = Math.abs(((multiplier - 1) * 100).toFixed(0));
   const sign = multiplier < 1 ? '↓' : '↑';
   const cls  = multiplier < 1 ? 'risk-status better' : 'risk-status worse';
   riskStatus.textContent = `×${multiplier.toFixed(2)} vs avg`;
   riskStatus.className   = cls;
 
-  // Bar: log scale, center = 1.0 = 50%
-  const logMin = Math.log(0.40);
-  const logMax = Math.log(2.50);
+  const logMin = Math.log(0.25);
+  const logMax = Math.log(3.50);
   const pos    = ((Math.log(multiplier) - logMin) / (logMax - logMin) * 100).toFixed(1);
 
   riskSummary.style.display = '';
@@ -240,7 +278,7 @@ function updateRiskSummary(multiplier, personalized) {
     <div class="risk-bar-label">
       <span>Your mortality modifier</span>
       <span class="risk-multiplier-value ${multiplier < 1 ? 'better' : 'worse'}">
-        ×${multiplier.toFixed(2)} &nbsp; ${sign} ${Math.abs(pct)}% vs population average
+        ×${multiplier.toFixed(2)} &nbsp; ${sign} ${pct}% vs population average
       </span>
     </div>
     <div class="risk-bar-wrap">
@@ -260,7 +298,6 @@ function initLevChart() {
     data: {
       labels: ages,
       datasets: [
-        // 0: population reference (shown only when personalized)
         {
           label: 'Population avg',
           data: new Array(90).fill(0),
@@ -272,7 +309,6 @@ function initLevChart() {
           pointRadius: 0,
           hidden: true,
         },
-        // 1: main curve (personalized or population)
         {
           label: 'P(LEV)',
           data: new Array(90).fill(0),
@@ -284,7 +320,6 @@ function initLevChart() {
           pointRadius: 0,
           pointHoverRadius: 4,
         },
-        // 2: selected age dot
         {
           label: 'Selected age',
           data: [],
@@ -301,12 +336,12 @@ function initLevChart() {
   });
 }
 
-function updateLevChart(baseQx, personalQx) {
-  const popCurve  = pLEVCurve(baseQx);
-  const mainCurve = personalQx ? pLEVCurve(personalQx) : popCurve;
+function updateLevChart(refQx, mainQx, imp) {
+  const refCurve  = pLEVCurve(refQx, imp);
+  const mainCurve = mainQx ? pLEVCurve(mainQx, imp) : refCurve;
 
-  levChart.data.datasets[0].data   = popCurve;
-  levChart.data.datasets[0].hidden = !personalQx;
+  levChart.data.datasets[0].data   = refCurve;
+  levChart.data.datasets[0].hidden = !mainQx;
   levChart.data.datasets[1].data   = mainCurve;
   levChart.data.datasets[2].data   = [{ x: currentAge, y: mainCurve[currentAge - 1] }];
   levChart.update('none');
@@ -395,13 +430,15 @@ function chartOptions(label, fmtFn) {
 async function init() {
   mortalityData = await loadMortalityData();
 
-  getCountries(mortalityData).forEach(({ code, name }) => {
-    const opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = name;
-    if (code === currentCountry) opt.selected = true;
-    countrySelect.appendChild(opt);
-  });
+  getCountries(mortalityData)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(({ code, name }) => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = name;
+      if (code === currentCountry) opt.selected = true;
+      countrySelect.appendChild(opt);
+    });
 
   loadingEl.style.display = 'none';
   appEl.style.display     = 'block';
@@ -419,6 +456,20 @@ async function init() {
 
   countrySelect.addEventListener('change', () => {
     currentCountry = countrySelect.value;
+    update();
+  });
+
+  document.getElementById('sex-control').addEventListener('click', e => {
+    const btn = e.target.closest('.seg-btn');
+    if (!btn) return;
+    currentSex = btn.dataset.value;
+    document.querySelectorAll('#sex-control .seg-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    update();
+  });
+
+  document.getElementById('trend-toggle').addEventListener('change', e => {
+    trendEnabled = e.target.checked;
     update();
   });
 

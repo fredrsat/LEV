@@ -32,6 +32,21 @@
         <span class="age-display" id="age-display">35</span>
       </div>
     </div>
+    <div class="control-group">
+      <label>Biological sex</label>
+      <div class="seg-control" id="sex-control">
+        <button class="seg-btn active" data-value="combined">Both</button>
+        <button class="seg-btn" data-value="female">Female</button>
+        <button class="seg-btn" data-value="male">Male</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Mortality trend</label>
+      <label class="trend-label">
+        <input type="checkbox" id="trend-toggle" />
+        <span>Historical improvement (~1%/yr)</span>
+      </label>
+    </div>
   </div>
 
   <div id="risk-panel" class="risk-panel">
@@ -64,6 +79,8 @@
       <div class="prob-value high" id="prob-value">—</div>
       <div class="prob-sub" id="prob-sub"></div>
       <div class="prob-ref" id="prob-ref" style="display:none"></div>
+      <div class="prob-context" id="prob-context"></div>
+      <div class="prob-bounds" id="prob-bounds"></div>
     </div>
 
     <div class="metrics">
@@ -81,6 +98,11 @@
         <div class="metric-label">Annual mortality risk now</div>
         <div class="metric-value" id="met-qx">—</div>
         <div class="metric-sub">Probability of dying this year</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Your LEV window</div>
+        <div class="metric-value metric-value--small" id="met-lev-window">—</div>
+        <div class="metric-sub">Likely range, if you benefit</div>
       </div>
     </div>
 
@@ -102,10 +124,13 @@
   <footer>
     <p>
       <strong>Data sources:</strong> Mortality tables Gompertz-modelled and calibrated against
-      Human Mortality Database (HMD) 2020–2022 period data for 14 countries. Both sexes combined.
+      Human Mortality Database (HMD) 2020–2022 period data for 14 countries. Both sexes combined
+      (sex-specific tables approximated by a ×1.26/×0.74 multiplier — will be replaced by actual
+      HMD sex-specific tables in a future update).
       LEV hypotheses calibrated against Metaculus community forecasts (Sept. 2024), Aubrey de Grey /
       LEV Foundation (2025), Ray Kurzweil (2024), and Olshansky et al., <em>Nature Aging</em> (Oct. 2024).
-      The model assumes current mortality rates remain constant until LEV is reached.
+      The model assumes current mortality rates remain constant until LEV is reached unless the
+      historical mortality trend option is enabled.
     </p>
   </footer>
 
