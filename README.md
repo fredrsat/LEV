@@ -2,7 +2,7 @@
 
 A single-page web app that estimates your personal probability of reaching **Longevity Escape Velocity (LEV)** — the hypothetical point at which medical technology extends life faster than time passes.
 
-Select country, age, and biological sex to see your probability update in real time, along with mortality metrics, a LEV window estimate, and a breakdown across five expert-weighted hypotheses.
+Select country, age, and biological sex to see your probability update in real time, along with mortality metrics, a LEV window estimate, and a breakdown across five expert-weighted hypotheses. A hypothesis trust slider lets you shift the weighting toward pessimistic or optimistic experts.
 
 ---
 
@@ -153,11 +153,21 @@ A sex toggle applies an approximate mortality multiplier to the combined-sex qx 
 
 These are calibrated to reproduce the observed ~4–5 year life expectancy gap across the 14 HMD countries. Sex-specific tables from HMD are planned as a future data update.
 
+### Hypothesis trust slider
+
+A slider above the hypothesis cards lets users shift the model's weighting toward pessimistic experts (Olshansky, Fedichev — left) or optimistic ones (de Grey, Kurzweil — right). The calibrated default (slider = 0) uses the weights in the table above.
+
+Mathematically, at slider position `s ∈ [−1, +1]`:
+
+```
+weight_i(s) ∝ weight_i_default × exp(direction_i × s)
+```
+
+Direction values: H1 = +1.5, H2 = +0.9, H3 = +0.2, H4 = −0.9, H5 = −1.5. All weights are renormalised to sum to 1. H3 (Metaculus aggregate) shifts gently because it represents aggregated expert opinion rather than a single analyst's view.
+
 ### Uncertainty bounds
 
-The hero displays a sensitivity range computed by re-weighting the five hypotheses:
-- Optimistic: H1+H2 weights ×1.5, H4+H5 weights ×0.5 (renormalised)
-- Pessimistic: H1+H2 weights ×0.5, H4+H5 weights ×1.5 (renormalised)
+The hero displays a fixed model sensitivity range computed by re-weighting the five hypotheses at ±0.5 slider units (renormalised), independent of the user's trust slider position.
 
 ### LEV window
 
@@ -231,7 +241,7 @@ This overwrites `public/data/mortality_data.json` with the latest period life ta
 ## Limitations and caveats
 
 - **Static mortality assumption.** The model applies today's qx rates until LEV is reached. It does not model gradual improvements in medicine before LEV.
-- **Both-sexes average.** Men and women have different mortality profiles (~4–5 year gap in life expectancy). A future update will add a sex toggle.
+- **Approximate sex multipliers.** The sex toggle applies a uniform ×0.74/×1.26 multiplier to all ages rather than using separate HMD sex-specific tables. Sex-specific tables are a planned improvement.
 - **Calibrated hypotheses.** The five hypotheses and their weights are a best-effort summary of expert opinion as of early 2026. They are not a scientific consensus.
 - **Additive excess model.** Combining independent relative risks from different studies is an approximation. Residual confounding and study heterogeneity mean individual estimates carry substantial uncertainty.
 - **This is not medical or financial advice.**

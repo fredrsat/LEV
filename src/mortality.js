@@ -59,11 +59,12 @@ export function applySexMultiplier(qx, sex = 'combined') {
   return out;
 }
 
-// Life expectancy at birth computed from a qx table (standard actuarial formula).
-export function e0FromQx(qx) {
+// Remaining life expectancy from a given age, computed from a qx table.
+// fromAge = 0 gives e₀ (life expectancy at birth).
+export function e0FromQx(qx, fromAge = 0) {
   let e0 = 0;
   let s  = 1;
-  for (let a = 0; a <= 105; a++) {
+  for (let a = fromAge; a <= 105; a++) {
     e0 += s;
     s  *= 1 - (qx[String(a)] ?? 0.99);
   }

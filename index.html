@@ -103,6 +103,19 @@
           </div>
 
           <div class="about-section">
+            <h3>How hypothesis weights were chosen</h3>
+            <p>The five scenarios are weighted as follows, with explicit rationale:</p>
+            <ul>
+              <li><strong>H1 — Singularity optimist (10%):</strong> Kurzweil, Cordeiro, Church predict LEV by ~2030–2035. Historically, this camp has overestimated technological convergence speed by 10–20 years. Included as an upper bound; weighted low.</li>
+              <li><strong>H2 — Biotech optimist (25%):</strong> de Grey and Diamandis ground their forecasts in active research programs (senolytics, reprogramming, rapamycin trials). More biologically credible than H1, but still ahead of clinical evidence. Strongest credible near-term case.</li>
+              <li><strong>H3 — Mainstream / Metaculus (38%):</strong> The Metaculus community (143 forecasters, median ~2053) is the best single calibration anchor available — a structured aggregation of expert opinion with a track record. Highest weight.</li>
+              <li><strong>H4 — Biological pessimist (19%):</strong> Olshansky et al. (<em>Nature Aging</em>, 2024) provide peer-reviewed empirical evidence of a lifespan ceiling; Fedichev's thermodynamic framework adds theoretical grounding. Significant but not dominant.</li>
+              <li><strong>H5 — Does not happen (8%):</strong> Irreversibility arguments are serious, but science has repeatedly surpassed assumed limits. Treated as a hard floor — non-negligible but low.</li>
+            </ul>
+            <p>These weights are a calibrated starting point, not scientific consensus. Use the hypothesis trust slider to explore how your conclusions change if you favour different experts.</p>
+          </div>
+
+          <div class="about-section">
             <h3>Uncertainty and limitations</h3>
             <ul>
               <li><strong>The hypotheses are not scientific consensus.</strong> They are a best-effort calibration against expert forecasts as of March 2026. The model sensitivity range illustrates how much the result depends on which scenario you believe.</li>
@@ -130,9 +143,9 @@
 
     <div class="metrics">
       <div class="metric-card">
-        <div class="metric-label">Life expectancy (e₀)</div>
+        <div class="metric-label">Remaining life expectancy</div>
         <div class="metric-value" id="met-e0">—</div>
-        <div class="metric-sub">Gompertz-modelled, HMD 2020–2022</div>
+        <div class="metric-sub">From current age, HMD period tables</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">Survival to age 80</div>
@@ -160,6 +173,20 @@
         <h2>Mortality risk (qx) by age — selected country</h2>
         <canvas id="qx-chart" height="220"></canvas>
       </div>
+    </div>
+
+    <div class="trust-bar">
+      <div class="trust-bar-header">
+        <span class="trust-bar-title">Hypothesis trust</span>
+        <span id="trust-label" class="trust-label-center">Calibrated default</span>
+        <button id="trust-reset" class="trust-reset">Reset</button>
+      </div>
+      <div class="trust-bar-track">
+        <span class="trust-bar-pole trust-bar-pole--left">← Skeptical</span>
+        <input type="range" id="trust-slider" min="-100" max="100" value="0" />
+        <span class="trust-bar-pole trust-bar-pole--right">Optimistic →</span>
+      </div>
+      <p class="trust-bar-sub">Drag to shift weight toward pessimistic experts (Olshansky, Fedichev) or optimistic ones (de Grey, Kurzweil). The calibrated default reflects our best-effort weighting against Metaculus forecasts.</p>
     </div>
 
     <div id="hyp-cards" class="hypotheses"></div>

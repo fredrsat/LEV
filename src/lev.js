@@ -227,6 +227,24 @@ export const CURRENT_YEAR = new Date().getFullYear();
 const T_MIN = CURRENT_YEAR;
 const T_MAX = 2250;
 
+// Direction × strength for the trust slider.
+// Positive = hypothesis favoured by moving slider right (optimistic).
+// At slider position s ∈ [-1, +1], weight_i ∝ default_weight_i × exp(dir_i × s).
+// H1/H5 are the strongest poles; H3 (Metaculus aggregate) shifts only gently.
+const HYPOTHESIS_DIRS = { 1: 1.5, 2: 0.9, 3: 0.2, 4: -0.9, 5: -1.5 };
+
+// Return a re-weighted copy of HYPOTHESES for a given slider position.
+// sliderPos = 0 → calibrated defaults exactly; -1 → full pessimist; +1 → full optimist.
+export function reweightHypotheses(sliderPos = 0) {
+  if (sliderPos === 0) return HYPOTHESES;
+  const scaled = HYPOTHESES.map(h => ({
+    ...h,
+    weight: h.weight * Math.exp((HYPOTHESIS_DIRS[h.id] ?? 0) * sliderPos),
+  }));
+  const norm = scaled.reduce((s, h) => s + h.weight, 0);
+  return scaled.map(h => ({ ...h, weight: h.weight / norm }));
+}
+
 function normalPDF(x, mu, sigma) {
   return Math.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * Math.sqrt(2 * Math.PI));
 }
@@ -246,9 +264,9 @@ export function survivalProb(currentAge, yearsAhead, qx, annualImprovement = 0) 
 }
 
 // P(LEV | currentAge, qx)
-export function pLEV(currentAge, qx, annualImprovement = 0) {
+export function pLEV(currentAge, qx, annualImprovement = 0, hypotheses = HYPOTHESES) {
   let total = 0;
-  for (const h of HYPOTHESES) {
+  for (const h of hypotheses) {
     if (h.mu === null) continue;
     let hContrib = 0;
     for (let t = T_MIN; t <= T_MAX; t++) {
@@ -264,13 +282,13 @@ export function pLEV(currentAge, qx, annualImprovement = 0) {
 }
 
 // P(LEV) for ages 1–90
-export function pLEVCurve(qx, annualImprovement = 0) {
-  return Array.from({ length: 90 }, (_, i) => pLEV(i + 1, qx, annualImprovement));
+export function pLEVCurve(qx, annualImprovement = 0, hypotheses = HYPOTHESES) {
+  return Array.from({ length: 90 }, (_, i) => pLEV(i + 1, qx, annualImprovement, hypotheses));
 }
 
 // Per-hypothesis contributions for a specific age
-export function hypothesisContributions(currentAge, qx, annualImprovement = 0) {
-  return HYPOTHESES.map(h => {
+export function hypothesisContributions(currentAge, qx, annualImprovement = 0, hypotheses = HYPOTHESES) {
+  return hypotheses.map(h => {
     if (h.mu === null) return { ...h, contribution: 0 };
     let contrib = 0;
     for (let t = T_MIN; t <= T_MAX; t++) {
@@ -313,13 +331,13 @@ export function pLEVBounds(currentAge, qx, annualImprovement = 0) {
 // LEV window: conditional distribution of "year you first benefit from LEV".
 // Returns the p25 and p75 year percentiles of P(LEV at t) × P(alive at t).
 // Interpretation: "Given you benefit, this is the likely arrival window."
-export function levWindow(currentAge, qx, annualImprovement = 0) {
+export function levWindow(currentAge, qx, annualImprovement = 0, hypotheses = HYPOTHESES) {
   const densities = [];
   let totalDensity = 0;
 
   for (let t = T_MIN; t <= T_MAX; t++) {
     let pLEVatT = 0;
-    for (const h of HYPOTHESES) {
+    for (const h of hypotheses) {
       if (h.mu === null) continue;
       pLEVatT += h.weight * normalPDF(t, h.mu, h.sigma);
     }

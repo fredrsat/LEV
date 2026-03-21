@@ -1,7 +1,7 @@
 import './style.css';
 import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler } from 'chart.js';
 import { loadMortalityData, getQx, getE0, getCountries, survivalToAge, qxArray, applySexMultiplier, e0FromQx } from './mortality.js';
-import { pLEV, pLEVCurve, hypothesisContributions, pLEVBounds, levWindow, survivalProb, CURRENT_YEAR } from './lev.js';
+import { pLEV, pLEVCurve, hypothesisContributions, pLEVBounds, levWindow, survivalProb, reweightHypotheses, CURRENT_YEAR } from './lev.js';
 import { RISK_FACTORS, computeMultiplier, applyRiskMultiplier, isPersonalized } from './risk.js';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler);
@@ -12,6 +12,7 @@ let currentAge     = 35;
 let currentCountry = 'NOR';
 let currentSex     = 'combined';
 let trendEnabled   = false;
+let trustSlider    = 0;
 let levChart       = null;
 let qxChart        = null;
 let riskSelections = {};
@@ -64,10 +65,11 @@ function update() {
   const imp        = annualImp();
   const anyAdjusted = currentSex !== 'combined' || personalized;
 
-  const p    = pLEV(currentAge, qx, imp);
-  const refP = anyAdjusted ? pLEV(currentAge, baseQx, imp) : null;
+  const hyps = reweightHypotheses(trustSlider);
+  const p    = pLEV(currentAge, qx, imp, hyps);
+  const refP = anyAdjusted ? pLEV(currentAge, baseQx, imp, hyps) : null;
 
-  const surv80 = currentAge < 80 ? survivalToAge(currentAge, 80, qx) : null;
+  const surv80 = currentAge < 80 ? survivalProb(currentAge, 80 - currentAge, qx, imp) : null;
   const qxNow  = qx[String(currentAge)] ?? 0;
 
   // Hero probability
@@ -116,20 +118,20 @@ function update() {
   probBounds.innerHTML = `Model sensitivity: <span class="prob-bounds-range">${fmt(bounds.low, 0)} – ${fmt(bounds.high, 0)}</span>`;
 
   // Metrics
-  metE0.textContent     = e0FromQx(sexQx).toFixed(1) + ' yrs';
+  metE0.textContent     = e0FromQx(qx, currentAge).toFixed(1) + ' yrs';
   metSurv80.textContent = surv80 != null ? fmt(surv80) : '—';
   metQx.textContent     = (qxNow * 100).toFixed(3) + '%';
 
   // LEV window
-  const win = levWindow(currentAge, qx, imp);
+  const win = levWindow(currentAge, qx, imp, hyps);
   metLevWindow.textContent = win ? `${win.p25}–${win.p75}` : '—';
 
   // Hypothesis cards
-  const contribs = hypothesisContributions(currentAge, qx, imp);
+  const contribs = hypothesisContributions(currentAge, qx, imp, hyps);
   renderHypothesisCards(contribs, p);
 
   // Charts
-  updateLevChart(baseQx, anyAdjusted ? qx : null, imp);
+  updateLevChart(baseQx, anyAdjusted ? qx : null, imp, hyps);
   updateQxChart(qx);
 
   // Risk panel summary
@@ -263,7 +265,7 @@ function updateRiskSummary(multiplier, personalized) {
     return;
   }
 
-  const pct  = Math.abs(((multiplier - 1) * 100).toFixed(0));
+  const pct  = Math.abs(Math.round((multiplier - 1) * 100));
   const sign = multiplier < 1 ? '↓' : '↑';
   const cls  = multiplier < 1 ? 'risk-status better' : 'risk-status worse';
   riskStatus.textContent = `×${multiplier.toFixed(2)} vs avg`;
@@ -336,9 +338,9 @@ function initLevChart() {
   });
 }
 
-function updateLevChart(refQx, mainQx, imp) {
-  const refCurve  = pLEVCurve(refQx, imp);
-  const mainCurve = mainQx ? pLEVCurve(mainQx, imp) : refCurve;
+function updateLevChart(refQx, mainQx, imp, hyps) {
+  const refCurve  = pLEVCurve(refQx, imp, hyps);
+  const mainCurve = mainQx ? pLEVCurve(mainQx, imp, hyps) : refCurve;
 
   levChart.data.datasets[0].data   = refCurve;
   levChart.data.datasets[0].hidden = !mainQx;
@@ -470,6 +472,31 @@ async function init() {
 
   document.getElementById('trend-toggle').addEventListener('change', e => {
     trendEnabled = e.target.checked;
+    update();
+  });
+
+  document.getElementById('trust-slider').addEventListener('input', e => {
+    trustSlider = parseInt(e.target.value, 10) / 100;
+    const label = document.getElementById('trust-label');
+    if (trustSlider === 0) {
+      label.textContent = 'Calibrated default';
+      label.className = 'trust-label-center';
+    } else if (trustSlider > 0) {
+      label.textContent = `Optimistic +${Math.round(trustSlider * 100)}`;
+      label.className = 'trust-label-optimistic';
+    } else {
+      label.textContent = `Skeptical ${Math.round(trustSlider * 100)}`;
+      label.className = 'trust-label-skeptical';
+    }
+    update();
+  });
+
+  document.getElementById('trust-reset').addEventListener('click', () => {
+    trustSlider = 0;
+    document.getElementById('trust-slider').value = 0;
+    const label = document.getElementById('trust-label');
+    label.textContent = 'Calibrated default';
+    label.className = 'trust-label-center';
     update();
   });
 
