@@ -101,7 +101,7 @@ function update() {
   // Context text
   const yearsToMainstream = Math.max(0, 2055 - CURRENT_YEAR);
   const survToMainstream  = survivalProb(currentAge, yearsToMainstream, qx, imp);
-  const mainPct = Math.round(survToMainstream * 100);
+  const mainPctDisplay = survToMainstream >= 0.995 ? '>99%' : `${Math.round(survToMainstream * 100)}%`;
   let interp;
   if      (p >= 0.70) interp = 'Strong odds of benefiting from LEV.';
   else if (p >= 0.50) interp = 'More likely than not to benefit.';
@@ -109,7 +109,7 @@ function update() {
   else if (p >= 0.15) interp = 'A realistic but uncertain prospect.';
   else if (p >= 0.05) interp = 'A small but non-negligible chance.';
   else                interp = 'Very unlikely given current models.';
-  probContext.textContent = `${interp} If LEV arrives around the mainstream estimate (2055), your probability of being alive then: ${mainPct}%.`;
+  probContext.textContent = `${interp} If LEV arrives around the mainstream estimate (2055), your probability of being alive then: ${mainPctDisplay}.`;
 
   // Uncertainty bounds
   const bounds = pLEVBounds(currentAge, qx, imp);
@@ -471,6 +471,14 @@ async function init() {
   document.getElementById('trend-toggle').addEventListener('change', e => {
     trendEnabled = e.target.checked;
     update();
+  });
+
+  document.getElementById('about-toggle').addEventListener('click', () => {
+    const body = document.getElementById('about-body');
+    const btn  = document.getElementById('about-toggle');
+    const open = body.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+    btn.querySelector('.risk-arrow').textContent = open ? '▼' : '▶';
   });
 
   riskToggle.addEventListener('click', () => {
