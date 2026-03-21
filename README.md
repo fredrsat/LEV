@@ -29,8 +29,10 @@ P(LEV | age) = Σᵢ  weight(Hᵢ) × Σₜ [ P(LEV happens year t | Hᵢ) × S(
 Computed by chaining annual survival factors from the qx table:
 
 ```
-S(t | age) = Π_{a=age}^{age + (t−2026)}  (1 − qx[a])
+S(t | age) = Π_{a=age}^{age + (t − currentYear)}  (1 − qx[a] × (1 − r)^(t − currentYear))
 ```
+
+where `r = 0` by default and `r = 0.01` when the historical mortality trend option is enabled.
 
 ### Mortality tables
 
