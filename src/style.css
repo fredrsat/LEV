@@ -205,11 +205,19 @@ main {
 }
 
 .prob-bounds {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.72rem;
-  color: var(--muted);
   margin-top: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
-.prob-bounds-range { color: var(--text); font-weight: 600; }
+.prob-bounds-label  { color: var(--muted); margin-right: 4px; }
+.prob-bounds-low    { color: var(--muted); }
+.prob-bounds-high   { color: var(--muted); }
+.prob-bounds-arrow  { color: var(--muted); font-size: 0.65rem; }
+.prob-bounds-center { color: var(--text); font-weight: 700; font-size: 0.82rem; }
 
 /* ── Metric cards ── */
 .metrics {

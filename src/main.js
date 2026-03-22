@@ -115,7 +115,7 @@ function update() {
 
   // Uncertainty bounds
   const bounds = pLEVBounds(currentAge, qx, imp);
-  probBounds.innerHTML = `Model sensitivity: <span class="prob-bounds-range">${fmt(bounds.low, 0)} – ${fmt(bounds.high, 0)}</span>`;
+  probBounds.innerHTML = `<span class="prob-bounds-label">Scenario range</span><span class="prob-bounds-low">${fmt(bounds.low, 0)}</span><span class="prob-bounds-arrow">←</span><span class="prob-bounds-center">${fmt(p, 1)}</span><span class="prob-bounds-arrow">→</span><span class="prob-bounds-high">${fmt(bounds.high, 0)}</span>`;
 
   // Metrics
   metE0.textContent     = e0FromQx(qx, currentAge).toFixed(1) + ' yrs';
