@@ -91,7 +91,7 @@
             <p>It is the probability that LEV is achieved <em>and</em> you are still alive when it happens — weighted across five expert-calibrated scenarios for when LEV might arrive. A high number means: the most likely scenarios for LEV timing align well with your expected remaining lifespan.</p>
           </div>
 
-          <div class="about-section">
+          <div class="about-section about-section--full">
             <h3>What the model does <em>not</em> capture</h3>
             <p>Survival probabilities are based on <strong>population-average mortality tables</strong>. They reflect statistical averages across millions of people — not individual circumstances. The model does not account for:</p>
             <ul>
@@ -102,7 +102,7 @@
             <p>A young person seeing a high probability should read it as: <em>"if nothing unusual happens, the average person your age would likely be alive when LEV arrives."</em> Individual outcomes will vary widely.</p>
           </div>
 
-          <div class="about-section">
+          <div class="about-section about-section--full">
             <h3>How hypothesis weights were chosen</h3>
             <p>The five scenarios are weighted as follows, with explicit rationale:</p>
             <ul>
@@ -182,11 +182,11 @@
         <button id="trust-reset" class="trust-reset">Reset</button>
       </div>
       <div class="trust-bar-track">
-        <span class="trust-bar-pole trust-bar-pole--left">← Skeptical</span>
+        <span class="trust-bar-pole trust-bar-pole--left">← Optimistic</span>
         <input type="range" id="trust-slider" min="-100" max="100" value="0" />
-        <span class="trust-bar-pole trust-bar-pole--right">Optimistic →</span>
+        <span class="trust-bar-pole trust-bar-pole--right">Skeptical →</span>
       </div>
-      <p class="trust-bar-sub">Drag to shift weight toward pessimistic experts (Olshansky, Fedichev) or optimistic ones (de Grey, Kurzweil). The calibrated default reflects our best-effort weighting against Metaculus forecasts.</p>
+      <p class="trust-bar-sub">Drag left to shift weight toward optimistic experts (de Grey, Kurzweil), right toward skeptical ones (Olshansky, Fedichev). The calibrated default reflects our best-effort weighting against Metaculus forecasts.</p>
     </div>
 
     <div id="hyp-cards" class="hypotheses"></div>

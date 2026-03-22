@@ -476,7 +476,7 @@ async function init() {
   });
 
   document.getElementById('trust-slider').addEventListener('input', e => {
-    trustSlider = parseInt(e.target.value, 10) / 100;
+    trustSlider = -parseInt(e.target.value, 10) / 100;
     const label = document.getElementById('trust-label');
     if (trustSlider === 0) {
       label.textContent = 'Calibrated default';

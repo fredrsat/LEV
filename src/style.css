@@ -343,8 +343,8 @@ main {
   white-space: nowrap;
   flex: none;
 }
-.trust-bar-pole--left  { color: var(--amber); }
-.trust-bar-pole--right { color: #1D9E75; }
+.trust-bar-pole--left  { color: #1D9E75; }
+.trust-bar-pole--right { color: var(--amber); }
 
 .trust-bar-track input[type=range] {
   flex: 1;
