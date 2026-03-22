@@ -136,6 +136,8 @@ function update() {
 
   // Risk panel summary
   updateRiskSummary(multiplier, personalized);
+
+  syncToURL();
 }
 
 function renderHypothesisCards(contribs, total) {
@@ -428,6 +430,44 @@ function chartOptions(label, fmtFn) {
   };
 }
 
+// ── URL persistence ──
+function syncToURL() {
+  const params = new URLSearchParams();
+  params.set('age', currentAge);
+  params.set('country', currentCountry);
+  if (currentSex !== 'combined') params.set('sex', currentSex);
+  if (trendEnabled) params.set('trend', '1');
+  if (trustSlider !== 0) params.set('trust', Math.round(trustSlider * 100));
+  RISK_FACTORS.forEach(f => {
+    const val = riskSelections[f.id];
+    if (val && val !== f.default) params.set(f.id, val);
+  });
+  history.replaceState(null, '', '?' + params.toString());
+}
+
+function loadFromURL() {
+  const p = new URLSearchParams(location.search);
+  if (p.has('age')) {
+    const a = parseInt(p.get('age'), 10);
+    if (a >= 1 && a <= 90) currentAge = a;
+  }
+  if (p.has('country')) currentCountry = p.get('country');
+  if (p.has('sex') && ['combined', 'female', 'male'].includes(p.get('sex'))) {
+    currentSex = p.get('sex');
+  }
+  if (p.has('trend')) trendEnabled = p.get('trend') === '1';
+  if (p.has('trust')) {
+    const t = parseInt(p.get('trust'), 10);
+    if (t >= -100 && t <= 100) trustSlider = t / 100;
+  }
+  RISK_FACTORS.forEach(f => {
+    if (p.has(f.id)) {
+      const val = p.get(f.id);
+      if (f.options.some(o => o.value === val)) riskSelections[f.id] = val;
+    }
+  });
+}
+
 // ── Bootstrap ──
 async function init() {
   mortalityData = await loadMortalityData();
@@ -438,9 +478,32 @@ async function init() {
       const opt = document.createElement('option');
       opt.value = code;
       opt.textContent = name;
-      if (code === currentCountry) opt.selected = true;
       countrySelect.appendChild(opt);
     });
+
+  loadFromURL();
+
+  // Sync UI controls to loaded state
+  ageSlider.value        = currentAge;
+  ageDisplay.textContent = currentAge;
+  countrySelect.value    = currentCountry;
+  document.getElementById('trend-toggle').checked = trendEnabled;
+  document.querySelectorAll('#sex-control .seg-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.value === currentSex);
+  });
+  const trustInputEl = document.getElementById('trust-slider');
+  const trustLabelEl = document.getElementById('trust-label');
+  trustInputEl.value = -Math.round(trustSlider * 100);
+  if (trustSlider === 0) {
+    trustLabelEl.textContent = 'Calibrated default';
+    trustLabelEl.className   = 'trust-label-center';
+  } else if (trustSlider > 0) {
+    trustLabelEl.textContent = `Optimistic +${Math.round(trustSlider * 100)}`;
+    trustLabelEl.className   = 'trust-label-optimistic';
+  } else {
+    trustLabelEl.textContent = `Skeptical ${Math.round(trustSlider * 100)}`;
+    trustLabelEl.className   = 'trust-label-skeptical';
+  }
 
   loadingEl.style.display = 'none';
   appEl.style.display     = 'block';
