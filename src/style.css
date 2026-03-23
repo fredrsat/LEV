@@ -258,6 +258,23 @@ main {
   margin-top: 4px;
 }
 
+/* ── Breakeven bar ── */
+.breakeven-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.breakeven-bar strong { color: var(--text); font-weight: 600; }
+.breakeven-icon { font-size: 1rem; flex: none; }
+
 /* ── Charts ── */
 .charts {
   display: grid;
@@ -283,6 +300,9 @@ main {
 
 .chart-card canvas {
   width: 100% !important;
+}
+.chart-card--full {
+  margin-top: 16px;
 }
 
 /* ── Trust slider ── */

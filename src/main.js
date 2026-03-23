@@ -1,10 +1,10 @@
 import './style.css';
-import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler } from 'chart.js';
+import { Chart, LineController, BarController, LineElement, BarElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler } from 'chart.js';
 import { loadMortalityData, getQx, getE0, getCountries, survivalToAge, qxArray, applySexMultiplier, e0FromQx } from './mortality.js';
 import { pLEV, pLEVCurve, hypothesisContributions, pLEVBounds, levWindow, survivalProb, reweightHypotheses, CURRENT_YEAR } from './lev.js';
 import { RISK_FACTORS, computeMultiplier, applyRiskMultiplier, isPersonalized } from './risk.js';
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler);
+Chart.register(LineController, BarController, LineElement, BarElement, PointElement, LinearScale, CategoryScale, Tooltip, Filler);
 
 // ── State ──
 let mortalityData  = null;
@@ -15,6 +15,7 @@ let trendEnabled   = false;
 let trustSlider    = 0;
 let levChart       = null;
 let qxChart        = null;
+let countryChart   = null;
 let riskSelections = {};
 
 // ── DOM refs ──
@@ -32,6 +33,7 @@ const metE0         = document.getElementById('met-e0');
 const metSurv80     = document.getElementById('met-surv80');
 const metQx         = document.getElementById('met-qx');
 const metLevWindow  = document.getElementById('met-lev-window');
+const breakevenEl   = document.getElementById('breakeven-text');
 const hypCards      = document.getElementById('hyp-cards');
 const riskToggle    = document.getElementById('risk-toggle');
 const riskBody      = document.getElementById('risk-body');
@@ -65,9 +67,11 @@ function update() {
   const imp        = annualImp();
   const anyAdjusted = currentSex !== 'combined' || personalized;
 
-  const hyps = reweightHypotheses(trustSlider);
-  const p    = pLEV(currentAge, qx, imp, hyps);
-  const refP = anyAdjusted ? pLEV(currentAge, baseQx, imp, hyps) : null;
+  const hyps      = reweightHypotheses(trustSlider);
+  const mainCurve = pLEVCurve(qx, imp, hyps);
+  const refCurve  = anyAdjusted ? pLEVCurve(baseQx, imp, hyps) : null;
+  const p         = mainCurve[currentAge - 1];
+  const refP      = refCurve ? refCurve[currentAge - 1] : null;
 
   const surv80 = currentAge < 80 ? survivalProb(currentAge, 80 - currentAge, qx, imp) : null;
   const qxNow  = qx[String(currentAge)] ?? 0;
@@ -126,13 +130,28 @@ function update() {
   const win = levWindow(currentAge, qx, imp, hyps);
   metLevWindow.textContent = win ? `${win.p25}–${win.p75}` : '—';
 
+  // Breakeven — highest age with P(LEV) >= 0.5
+  let breakevenAge = null;
+  for (let i = mainCurve.length - 1; i >= 0; i--) {
+    if (mainCurve[i] >= 0.5) { breakevenAge = i + 1; break; }
+  }
+  if (breakevenAge) {
+    const by = CURRENT_YEAR - breakevenAge;
+    breakevenEl.innerHTML = `People born <strong>${by} or later</strong> (age&nbsp;≤${breakevenAge} today) have &gt;50% probability of benefiting from LEV — based on current settings.`;
+  } else {
+    breakevenEl.textContent = 'No age group currently has >50% probability under these settings.';
+  }
+
   // Hypothesis cards
   const contribs = hypothesisContributions(currentAge, qx, imp, hyps);
   renderHypothesisCards(contribs, p);
 
   // Charts
-  updateLevChart(baseQx, anyAdjusted ? qx : null, imp, hyps);
+  updateLevChart(mainCurve, refCurve);
   updateQxChart(qx);
+  updateCountryChart(imp, hyps);
+  const ccAgeEl = document.getElementById('country-chart-age');
+  if (ccAgeEl) ccAgeEl.textContent = currentAge;
 
   // Risk panel summary
   updateRiskSummary(multiplier, personalized);
@@ -340,12 +359,9 @@ function initLevChart() {
   });
 }
 
-function updateLevChart(refQx, mainQx, imp, hyps) {
-  const refCurve  = pLEVCurve(refQx, imp, hyps);
-  const mainCurve = mainQx ? pLEVCurve(mainQx, imp, hyps) : refCurve;
-
-  levChart.data.datasets[0].data   = refCurve;
-  levChart.data.datasets[0].hidden = !mainQx;
+function updateLevChart(mainCurve, refCurve) {
+  levChart.data.datasets[0].data   = refCurve ?? mainCurve;
+  levChart.data.datasets[0].hidden = !refCurve;
   levChart.data.datasets[1].data   = mainCurve;
   levChart.data.datasets[2].data   = [{ x: currentAge, y: mainCurve[currentAge - 1] }];
   levChart.update('none');
@@ -392,6 +408,56 @@ function updateQxChart(qx) {
   qxChart.data.datasets[0].data = arr;
   qxChart.data.datasets[1].data = [{ x: currentAge, y: arr[currentAge] }];
   qxChart.update('none');
+}
+
+// ── Country comparison chart ──
+function initCountryChart() {
+  const ctx = document.getElementById('country-chart').getContext('2d');
+  countryChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 3 }] },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      animation: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1d27',
+          borderColor: '#2a2d3a',
+          borderWidth: 1,
+          titleColor: '#888780',
+          bodyColor: '#e8e9ed',
+          callbacks: { label: ctx => `P(LEV): ${fmt(ctx.parsed.x)}` },
+        },
+      },
+      scales: {
+        x: {
+          min: 0, max: 1,
+          ticks: { color: '#888780', font: { size: 10 }, callback: v => fmt(v, 0) },
+          grid: { color: '#2a2d3a' },
+        },
+        y: {
+          ticks: { color: '#888780', font: { size: 10 } },
+          grid: { color: '#2a2d3a' },
+        },
+      },
+    },
+  });
+}
+
+function updateCountryChart(imp, hyps) {
+  const entries = getCountries(mortalityData).map(({ code, name }) => {
+    const cqx = applySexMultiplier(getQx(mortalityData, code), currentSex);
+    return { name, code, p: pLEV(currentAge, cqx, imp, hyps) };
+  }).sort((a, b) => b.p - a.p);
+
+  countryChart.data.labels                    = entries.map(e => e.name);
+  countryChart.data.datasets[0].data          = entries.map(e => e.p);
+  countryChart.data.datasets[0].backgroundColor = entries.map(e =>
+    e.code === currentCountry ? '#378ADD' : 'rgba(136,135,128,0.3)'
+  );
+  countryChart.update('none');
 }
 
 // ── Shared chart options ──
@@ -511,6 +577,7 @@ async function init() {
   renderRiskPanel();
   initLevChart();
   initQxChart();
+  initCountryChart();
   update();
 
   ageSlider.addEventListener('input', () => {
